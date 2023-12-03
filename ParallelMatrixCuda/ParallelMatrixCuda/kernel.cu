@@ -11,12 +11,12 @@ const int matrixSize = 3300;
 
 __global__ void matrixMult(const int* A, const int* B, int* C)
 {
-    int i0 = matrixSize * (blockDim.y * blockIdx.y + threadIdx.y);
-    int j0 = blockDim.x * blockIdx.x + threadIdx.x;
+    int i = matrixSize * (blockDim.y * blockIdx.y + threadIdx.y);
+    int j = blockDim.x * blockIdx.x + threadIdx.x;
     int sum = 0;
 
     for (int k = 0; k < matrixSize; k++)
-        sum += A[i0 + k] * B[k * matrixSize + j0];
+        sum += A[i + k] * B[k * matrixSize + j];
 
     int ind = matrixSize * (blockDim.y * blockIdx.y + threadIdx.y) + blockDim.x * blockIdx.x + threadIdx.x;
     C[ind] = sum;
@@ -44,17 +44,17 @@ int main(int argc, char** argv) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    int* d_A = NULL;
-    cudaMalloc((void**)&d_A, size);
+    int* calcA = NULL;
+    cudaMalloc((void**)&calcA, size);
 
-    int* d_B = NULL;
-    cudaMalloc((void**)&d_B, size);
+    int* calcB = NULL;
+    cudaMalloc((void**)&calcB, size);
 
-    int* d_C = NULL;
-    cudaMalloc((void**)&d_C, size);
+    int* calcC = NULL;
+    cudaMalloc((void**)&calcC, size);
 
-    cudaMemcpy(d_A, a, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_B, b, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(calcA, a, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(calcB, b, size, cudaMemcpyHostToDevice);
 
     cout << "Starting calculations" << endl;
     cout << endl;
@@ -67,20 +67,20 @@ int main(int argc, char** argv) {
         dim3 blocksPerGrid = dim3(matrixSize / t, matrixSize / t);
 
         cudaEventRecord(start, 0);
-        matrixMult<<<blocksPerGrid, threadsPerBlock>>>(d_A, d_B, d_C);
+        matrixMult<<<blocksPerGrid, threadsPerBlock>>>(calcA, calcB, calcC);
 
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
         float kernelTime;
         cudaEventElapsedTime(&kernelTime, start, stop);
-        printf("Threads per block: %d; Blocks per grid: %d; KernelTime: %.2f seconds\n", t, matrixSize / t, kernelTime / 1000);
+        printf("Threads per block: %d; Blocks per grid: %d; KernelTime: %d seconds\n", t, matrixSize / t, (int)(kernelTime / 1000));
 
-        cudaMemcpy(c, d_C, size, cudaMemcpyDeviceToHost);
+        cudaMemcpy(c, calcC, size, cudaMemcpyDeviceToHost);
     }
 
-    cudaFree(d_A);
-    cudaFree(d_B);
-    cudaFree(d_C);
+    cudaFree(calcA);
+    cudaFree(calcB);
+    cudaFree(calcC);
     free(a);
     free(b);
     free(c);

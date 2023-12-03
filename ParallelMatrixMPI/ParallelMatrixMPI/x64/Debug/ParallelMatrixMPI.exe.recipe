@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>E:\ParallelMatrixMPI\x64\Debug\ParallelMatrixMPI.exe</FullPath>
+      <FullPath>E:\ParallelMatrixErmolin\ParallelMatrixMPI\x64\Debug\ParallelMatrixMPI.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

@@ -38,7 +38,6 @@ int main(int argc, char** argv) {
 #pragma omp parallel for private(i, j, k)
         for (i = 0; i < matrixSize; i++) {
             for (j = 0; j < matrixSize; j++) {
-                c[i * matrixSize + j] = 0;
                 for (k = 0; k < matrixSize; k++) {
                     c[i * matrixSize + j] += (a[i * matrixSize + k] * b[k * matrixSize + j]);
                 }
